@@ -2,6 +2,12 @@
 
 <head>
 	<style>
+		@font-face {
+			font-family: "SquarePlusMinusPipe";
+			src:
+				local("SquarePlusMinusPipe.ttf"),
+		}
+
 		textarea
 		{
 			border: 0px;
@@ -15,6 +21,9 @@
 			-webkit-text-stroke: 1px;
 		}
 	</style>
+
+</head>
+
 </head>
 
 <body>
@@ -38,6 +47,46 @@
 		</div>
 
 		<div>
+			<label>Image:</label>
+
+			<div>
+				<label>Size in Pixels:</label>
+				<label>X:</label>
+				<input
+					id="inputImageSizeInPixelsX"
+					type="number"
+					min="0" step="1"
+				></input>
+				<label>Y:</label>
+				<input
+					id="inputImageSizeInPixelsY"
+					type="number"
+					min="0" step="1"
+				></input>
+			</div>
+
+			<div>
+				<label>Offset In Pixels:</label>
+				<label>X:</label>
+				<input
+					id="inputImageOffsetInPixelsX"
+					type="number"
+					step="1"
+					value="0"
+				></input>
+				<label>Y:</label>
+				<input
+					id="inputImageOffsetInPixelsY"
+					type="number"
+					step="1"
+					value="0"
+				></input>
+			</div>
+
+			<button onclick="UiEventHandler.buttonImageResize_Clicked()">Resize</button>
+		</div>
+
+		<div>
 			<label>Font:</label>
 
 			<div>
@@ -48,6 +97,7 @@
 				>
 					<option>sans-serif</option>
 					<option>serif</option>
+					<option>SquarePlusMinusPipe</option>
 				</select>
 			</div>
 
@@ -122,7 +172,6 @@
 					<textarea
 						id="textareaOverlay"
 					></textarea>
-<!--style="background-color: Transparent; resize: none; -webkit-text-fill-color: Red; -webkit-text-stroke: 1px"-->
 				</div>
 			</div>
 		</div>
@@ -133,6 +182,40 @@
 
 class UiEventHandler
 {
+	static buttonImageResize_Clicked()
+	{
+		var d = document;
+
+		var inputImageSizeInPixelsX =
+			d.getElementById("inputImageSizeInPixelsX");
+		var inputImageSizeInPixelsY =
+			d.getElementById("inputImageSizeInPixelsY");
+
+		var inputImageOffsetInPixelsX =
+			d.getElementById("inputImageOffsetInPixelsX");
+		var inputImageOffsetInPixelsY =
+			d.getElementById("inputImageOffsetInPixelsY");
+
+		var imageSizeInPixelsX = parseInt(inputImageSizeInPixelsX.value);
+		var imageSizeInPixelsY = parseInt(inputImageSizeInPixelsY.value);
+
+		var imageOffsetInPixelsX = parseInt(inputImageOffsetInPixelsX.value);
+		var imageOffsetInPixelsY = parseInt(inputImageOffsetInPixelsY.value);
+
+		var imgImage = d.getElementById("imgImage");
+		imgImage.width = imageSizeInPixelsX;
+		imgImage.height = imageSizeInPixelsY;
+
+		imgImage.style.position = "relative";
+		imgImage.style.left = imageOffsetInPixelsX;
+		imgImage.style.top = imageOffsetInPixelsY;
+
+		var textareaOverlay =
+			d.getElementById("textareaOverlay");
+		textareaOverlay.style.width = imageSizeInPixelsX;
+		textareaOverlay.style.height = imageSizeInPixelsY;
+	}
+
 	static inputFontColorFill_Changed(inputFontColorFill)
 	{
 		var d = document;
@@ -180,6 +263,7 @@ class UiEventHandler
 				var imageAsDataUrl = event.target.result;
 				var d = document;
 				var imgElement = d.createElement("img");
+				imgElement.id = "imgImage";
 				imgElement.onload = (event2) =>
 				{
 					var divImage =
@@ -191,7 +275,14 @@ class UiEventHandler
 						d.getElementById("textareaOverlay");
 					textareaOverlay.style.width = imgElement.width;
 					textareaOverlay.style.height = imgElement.height;
-					
+
+					var inputImageSizeInPixelsX =
+						d.getElementById("inputImageSizeInPixelsX");
+					var inputImageSizeInPixelsY =
+						d.getElementById("inputImageSizeInPixelsY");
+
+					inputImageSizeInPixelsX.value = imgElement.width;
+					inputImageSizeInPixelsY.value = imgElement.height;
 				}
 				imgElement.src = imageAsDataUrl;
 			};
