@@ -8,6 +8,11 @@
 				local("SquarePlusMinusPipe.ttf"),
 		}
 
+		.inputText
+		{
+			width: 64px;
+		}
+
 		textarea
 		{
 			border: 0px;
@@ -54,12 +59,14 @@
 				<label>X:</label>
 				<input
 					id="inputImageSizeInPixelsX"
+					class="inputText"
 					type="number"
 					min="0" step="1"
 				></input>
 				<label>Y:</label>
 				<input
 					id="inputImageSizeInPixelsY"
+					class="inputText"
 					type="number"
 					min="0" step="1"
 				></input>
@@ -70,6 +77,7 @@
 				<label>X:</label>
 				<input
 					id="inputImageOffsetInPixelsX"
+					class="inputText"
 					type="number"
 					step="1"
 					value="0"
@@ -77,6 +85,7 @@
 				<label>Y:</label>
 				<input
 					id="inputImageOffsetInPixelsY"
+					class="inputText"
 					type="number"
 					step="1"
 					value="0"
@@ -99,62 +108,57 @@
 					<option>serif</option>
 					<option>SquarePlusMinusPipe</option>
 				</select>
-			</div>
 
-			<div>
 				<label>Height in Pixels:</label>
 				<input
 					id="inputFontHeight"
+					class="inputText"
 					type="number"
 					min="1" max="200" step="1"
 					value="32"
 					onchange="UiEventHandler.inputFontHeight_Changed(this)"
 				></input>
-			</div>
 
-			<div>
 				<label>Weight:</label>
 				<select
-					id="selectFontFamily"
+					id="selectFontWeight"
 					onchange="UiEventHandler.selectFontWeight_Changed(this)"
 				>
 					<option>bold</option>
 					<option>normal</option>
 					<option>bolder</option>
 				</select>
-			</div>
-
-			<div>
-				<label>Colors:</label>
 
 				<div>
+					<label>Colors:</label>
+
 					<label>Fill:</label>
 					<input
 						id="inputFontColorFill"
+						class="inputText"
 						value="Black"
 						onchange="UiEventHandler.inputFontColorFill_Changed(this)"
 					></input>
-				</div>
 
-				</div>
 					<label>Outline:</label>
 					<input
 						id="inputFontColorOutline"
+						class="inputText"
 						value="White"
 						onchange="UiEventHandler.inputFontColorOutline_Changed(this)"
 					></input>
-				</div>
 
-				</div>
-					<label>Outline Thickness in Pixels:</label>
 					<input
 						id="inputFontOutlineThickness"
+						class="inputText"
 						type="number"
 						min="0" max="100"
 						value=".5"
 						onchange="UiEventHandler.inputFontOutlineThickness_Changed(this)"
 					></input>
+					<label>px</label>
 				</div>
+
 			</div>
 
 		</div>
@@ -174,6 +178,22 @@
 					></textarea>
 				</div>
 			</div>
+		</div>
+
+		<div>
+			<button
+				onclick="UiEventHandler.buttonMergeImageAndText_Clicked()"
+			>
+				Merge Image and Text
+			</button>
+		</div>
+
+		<div>
+			<label>Image and Text Merged:</label>
+		</div>
+
+		<div id="divImageAndTextMerged">
+			[No image merged yet.]
 		</div>
 
 	</div>
@@ -214,6 +234,72 @@ class UiEventHandler
 			d.getElementById("textareaOverlay");
 		textareaOverlay.style.width = imageSizeInPixelsX;
 		textareaOverlay.style.height = imageSizeInPixelsY;
+	}
+
+	static buttonMergeImageAndText_Clicked()
+	{
+		var d = document;
+
+		var imgImage = d.getElementById("imgImage");
+		if (imgImage != null)
+		{
+			var textareaOverlay =
+				d.getElementById("textareaOverlay");
+			var textToMerge = textareaOverlay.value;
+			var newline = "\n";
+			var textToMergeLines = textToMerge.split(newline);
+
+			var selectFontFamily =
+				d.getElementById("selectFontFamily");
+			var inputFontHeight =
+				d.getElementById("inputFontHeight");
+			var inputFontColorFill =
+				d.getElementById("inputFontColorFill");
+			var inputFontColorOutline =
+				d.getElementById("inputFontColorOutline");
+			var inputFontOutlineThickness =
+				d.getElementById("inputFontOutlineThickness");
+			var selectFontWeight =
+				d.getElementById("selectFontWeight");
+
+			var fontFamilyName = selectFontFamily.value;
+			var fontHeightInPixels = parseFloat(inputFontHeight.value);
+			var colorFill = inputFontColorFill.value;
+			var colorOutline = inputFontColorOutline.value;
+			var fontOutlineThicknessInPixels =
+				parseFloat(inputFontOutlineThickness.value);
+			var fontWeight = selectFontWeight.value;
+
+			var canvasMerged = d.createElement("canvas");
+			canvasMerged.width = imgImage.width;
+			canvasMerged.height = imgImage.height;
+
+			var graphics = canvasMerged.getContext("2d");
+
+			graphics.drawImage(imgImage, 0, 0);
+
+			graphics.fillStyle = colorFill;
+			graphics.strokeStyle = colorOutline;
+			graphics.lineWidth = fontOutlineThicknessInPixels;
+			var font =
+				fontWeight + " " + fontHeightInPixels + "px " + fontFamilyName;
+			graphics.font = font;
+
+			for (var y = 0; y < textToMergeLines.length; y++)
+			{
+				var line = textToMergeLines[y];
+
+				var drawPosY = (y + 1) * fontHeightInPixels;
+
+				graphics.fillText(line, 0, drawPosY);
+				graphics.strokeText(line, 0, drawPosY);
+			}
+
+			var divImageAndTextMerged =
+				d.getElementById("divImageAndTextMerged");
+			divImageAndTextMerged.innerHTML = "";
+			divImageAndTextMerged.appendChild(canvasMerged);
+		}
 	}
 
 	static inputFontColorFill_Changed(inputFontColorFill)
